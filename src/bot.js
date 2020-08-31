@@ -8,7 +8,7 @@ client.on('ready', () => {
   console.log(`${client.user.tag} has logged in`);
 });
 
-client.on('message', (message) => {
+client.on('message', async (message) => {
   if (message.author.bot) return;
   if (message.content.startsWith(PREFIX)) {
     const [CMD_NAME, ...args] = message.content
@@ -41,7 +41,16 @@ client.on('message', (message) => {
           'Im sorry, you do not have permission to use that command'
         );
       if (args.length === 0) return message.reply('Please provide an ID');
-      message.guild.members.ban(args[0]).catch((err) => console.log(err));
+
+      try {
+        const user = await message.guild.members.ban(args[0]);
+        message.channel.send('User was successfullly banned');
+        console.log(user);
+      } catch (err) {
+        message.channel.send(
+          'An error occured. Either I do not have permission or the user was not found :S'
+        );
+      }
     }
   }
 
