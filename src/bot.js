@@ -1,7 +1,14 @@
 require('dotenv').config();
 
-const { Client } = require('discord.js');
-const client = new Client();
+const { Client, WebhookClient } = require('discord.js');
+const client = new Client({
+  partials: ['MESSAGE', 'REACTION'],
+});
+
+const webhookClient = new WebhookClient(
+  process.env.WEBHOOK_ID,
+  process.env.WEBHOOK_TOKEN
+);
 const PREFIX = '$';
 
 client.on('ready', () => {
@@ -51,10 +58,47 @@ client.on('message', async (message) => {
           'An error occured. Either I do not have permission or the user was not found :S'
         );
       }
+    } else if (CMD_NAME === 'announce') {
+      console.log(args);
+      const msg = args.join(' ');
+      console.log(msg);
+      webhookClient.send(msg);
     }
   }
 
-  console.log(`[${message.author.tag}]: ${message.content}`);
+  // console.log(`[${message.author.tag}]: ${message.content}`);
+});
+
+client.on('messageReactionAdd', (reaction, user) => {
+  console.log('Hello!');
+  const { name } = reaction.emoji;
+  const member = reaction.message.guild.members.cache.get(user.id);
+  if (reaction.message.id === 750014082471690350) {
+    switch (name) {
+      case '🍎':
+        member.roles.add('750015873246298182');
+        break;
+      case '🍌':
+        member.roles.add('750015958235611316');
+        break;
+    }
+  }
+});
+
+client.on('messageReactionRemove', (reaction, user) => {
+  console.log('Hello!');
+  const { name } = reaction.emoji;
+  const member = reaction.message.guild.members.cache.get(user.id);
+  if (reaction.message.id === 750014082471690350) {
+    switch (name) {
+      case '🍎':
+        member.roles.remove('750015873246298182');
+        break;
+      case '🍌':
+        member.roles.remove('750015958235611316');
+        break;
+    }
+  }
 });
 
 client.login(process.env.DISCORDJS_BOT_TOKEN);
